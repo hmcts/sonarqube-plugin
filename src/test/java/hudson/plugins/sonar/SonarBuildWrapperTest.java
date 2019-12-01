@@ -217,6 +217,42 @@ public class SonarBuildWrapperTest extends SonarTestCase {
     assertThat(build.getActions(SonarAnalysisAction.class)).hasSize(1);
   }
 
+  @Test
+  public void prVariablesAreSetForGitHub() {
+    installation = createTestInstallationForEnv();
+
+    EnvVars initialEnvironment = new EnvVars();
+    initialEnvironment.put("MY_SERVER", "myserver");
+    initialEnvironment.put("MY_PORT", "10000");
+    initialEnvironment.put("MY_VALUE", "myValue");
+    initialEnvironment.put("CHANGE_ID", "5");
+    initialEnvironment.put("CHANGE_BRANCH", "feature/winning");
+    initialEnvironment.put("CHANGE_URL", "https://github.com/jenkinsci/sonarqube-plugin/pull/123");
+    initialEnvironment.put("GITHUB_AUTH", "123");
+
+    Map<String, String> map = SonarBuildWrapper.createVars(installation, null, new EnvVars(), mock(Run.class));
+
+    assertThat(map).containsEntry("SONARQUBE_SCANNER_PARAMS",
+            "{ \"sonar.host.url\" : \"http:\\/\\/myserver:10000\", \"sonar.login\" : \"" + MYTOKEN + "\", \"sonar.pullrequest.branch\" : \"feature\\/winning\", \"sonar.pullrequest.key\" : \"5\", \"sonar.pullrequest.provider\" : \"github\", \"sonar.pullrequest.github.repository\" : \"jenkinsci\\/sonarqube-plugin\", \"key\" : \"myValue\"}");
+  }
+
+  @Test
+  public void prVariablesAreSetForNonGithubSetups() {
+    installation = createTestInstallationForEnv();
+
+    EnvVars initialEnvironment = new EnvVars();
+    initialEnvironment.put("MY_SERVER", "myserver");
+    initialEnvironment.put("MY_PORT", "10000");
+    initialEnvironment.put("MY_VALUE", "myValue");
+    initialEnvironment.put("CHANGE_ID", "5");
+    initialEnvironment.put("CHANGE_BRANCH", "feature/winning");
+
+    Map<String, String> map = SonarBuildWrapper.createVars(installation, null, new EnvVars(), mock(Run.class));
+
+    assertThat(map).containsEntry("SONARQUBE_SCANNER_PARAMS",
+            "{ \"sonar.host.url\" : \"http:\\/\\/myserver:10000\", \"sonar.login\" : \"" + MYTOKEN + "\", \"sonar.pullrequest.branch\" : \"feature\\/winning\", \"sonar.pullrequest.key\" : \"5\", \"key\" : \"myValue\"}");
+  }
+
   private static class CaptureVarsBuilder extends TestBuilder {
     private boolean fail;
     private Map<String, String> vars;
