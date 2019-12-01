@@ -141,12 +141,10 @@ public class SonarBuildWrapper extends SimpleBuildWrapper {
       sb.append(", \"sonar.pullrequest.branch\" : \"").append(escapeJson(initialEnvironment.get("CHANGE_BRANCH"))).append("\"");
       sb.append(", \"sonar.pullrequest.key\" : \"").append(escapeJson(initialEnvironment.get("CHANGE_ID"))).append("\"");
 
-      if (initialEnvironment.get("GITHUB_AUTH") != null) {
-        sb.append(", \"sonar.pullrequest.provider\" : \"").append(escapeJson("github")).append("\"");
-        URI changeUrl = URI.create(initialEnvironment.get("CHANGE_URL"));
-        String repoSlug = changeUrl.getPath().replaceFirst("/pull/\\d+", "").replaceFirst("/", "");
-        sb.append(", \"sonar.pullrequest.github.repository\" : \"").append(escapeJson(repoSlug)).append("\"");
-      }
+      sb.append(", \"sonar.pullrequest.provider\" : \"").append(escapeJson("github")).append("\"");
+      URI changeUrl = URI.create(initialEnvironment.get("CHANGE_URL"));
+      String repoSlug = changeUrl.getPath().replaceFirst("/pull/\\d+", "").replaceFirst("/", "");
+      sb.append(", \"sonar.pullrequest.github.repository\" : \"").append(escapeJson(repoSlug)).append("\"");
     }
 
     String additionalAnalysisProperties = inst.getAdditionalAnalysisProperties();
